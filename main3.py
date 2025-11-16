@@ -1,4 +1,7 @@
 from calendar import c
+import pathlib 
+import datetime
+import csv
 import time
 import random
 import numpy as np
@@ -16,7 +19,7 @@ from pyautd3 import (
 from pyautd3.link.ethercrab import EtherCrab, EtherCrabOption
 from pyautd3.modulation import Fourier, FourierOption, Custom
 
-
+# ----------------- Grobal Function ----------------------
 def err_handler(idx: int, status: Status) -> None:
     print(f"Device[{idx}]: {status}")
 def generate_abc():
@@ -41,6 +44,26 @@ def generate_abc():
     # (a+b+c = p1 + (p2-p1) + (total_sum-p2) = total_sum となる)
     
     return a, b, c
+
+def make_load_csv(stimuli_list: list, hardness_list: list, roughness_list: list): # stimuli = [[a0, b0, c0], [a1, b1, c1], ...], hardness = [3, 5, 1, ...], roughness = [1, 4, 8, ...]
+    output_dir = pathlib.Path('./results')
+    output_dir.mkdir(parents=True, exist_ok=True)
+    now = datetime.datetime.now()
+    timestamp_str = now.strftime('%Y%m%d_%H%M%S')
+    file_name = f'results_{timestamp_str}.csv'
+    file_path = output_dir / file_name
+
+    with open(file_path, mode='w', new_line='', enconfig='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['meissner', 'merkel', 'pacinian', 'hardness', 'roughness'])
+        for i in range(len(hardness_list)):
+            writer.writerow([stimuli_list[i][0], stimuli_list[i][1], stimuli_list[i][2], hardness_list[i], roughness_list[i]])
+
+
+
+    
+# -------------------------- main function --------------------------------
+    
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -81,7 +104,33 @@ if __name__ == "__main__":
                 sumpling_config=sumpling_freq * Hz
         )
         autd.send((m, g)) 
-
+        print("デモで触覚刺激を生成しています.実験を開始するにはenterキーを押してください.")
         _ = input()
+        count = 0
+        stimuli_list = []
+        hardness_list = []
+        roughness_list = []
 
-        autd.close()
+        while count < 10:
+            a, b, c = generate_abc()
+            stimuli_array = a*np.sin(2*np.pi*30*t/sumpling_freq) + b*np.sin(2*np.pi*200*t/sumpling_freq) + c
+            m = Custom(
+                buffer=stimuli_array,
+                sumpling_config=sumpling_freq * Hz
+            )
+            autd.send((m, g)) 
+
+            hardness = input("硬さの指標として、1（soft）〜10（hard）の整数値を入力してください： ")
+            roughness = input("粗さの指標として1（smooth）〜10（rough）の整数値を入力してください：")
+            print("Enterキーをクリックしてstimuliを更新してください.")
+            _ = input()
+            stimuli_list.append([a, b, c])
+            hardness_list.append(hardness)
+            roughness_list.append(roughness)
+            count += 1
+        
+        print('データの取得が終了しました.csvファイルに結果を保存しています.')
+        make_load_csv(stimuli_list, hardness_list, roughness_list)
+        print('結果の保存が終了しました.')
+
+
