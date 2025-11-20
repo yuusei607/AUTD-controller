@@ -1,3 +1,4 @@
+from pyautd3.driver.geometry.rotation import EulerAngles
 import numpy as np, os, keyboard, time
 from pyautd3 import (
     AUTD3,
@@ -20,13 +21,23 @@ from pyautd3 import (
 )
 from pyautd3.link.twincat import TwinCAT
 
+w = AUTD3.DEVICE_WIDTH
+h = AUTD3.DEVICE_HEIGHT
 autds = (
-    AUTD3(pos=[0.0, 0.0, 0.0], rot=[1, 0, 0, 0]), 
-    AUTD3(pos=[0.0, AUTD3.DEVICE_HEIGHT, 0.0], rot=[1, 0, 0, 0]),
-    AUTD3(pos=[0.0, AUTD3.DEVICE_HEIGHT * 2.0, 0.0], rot=[1, 0, 0, 0]),
-    AUTD3(pos=[AUTD3.DEVICE_WIDTH, AUTD3.DEVICE_HEIGHT * 2.0, 0.0], rot=[1, 0, 0, 0]),
-    AUTD3(pos=[AUTD3.DEVICE_WIDTH, AUTD3.DEVICE_HEIGHT, 0.0], rot=[1, 0, 0, 0]),
-    AUTD3(pos=[AUTD3.DEVICE_WIDTH, 0.0, 0.0], rot=[1, 0, 0, 0]),
+    AUTD3(pos=[0.0, 2*h, 10.0], rot=EulerAngles.XYZ([np.pi * rad, - np.pi/2 * rad, 0.0 * rad])), 
+    AUTD3(pos=[0.0, 2*h, w+10.0], rot=EulerAngles.XYZ([np.pi * rad, - np.pi/2 * rad, 0.0 * rad])), 
+    AUTD3(pos=[0.0, h, w+10.0], rot=EulerAngles.XYZ([np.pi * rad, - np.pi/2 * rad, 0.0 * rad])), 
+    AUTD3(pos=[0.0, h, 10.0], rot=EulerAngles.XYZ([np.pi * rad, - np.pi/2 * rad, 0.0 * rad])), 
+    AUTD3(pos=[w-15.0, h, 0.0], rot=EulerAngles.XYZ([np.pi * rad, 0.0 * rad, 0.0 * rad])), 
+    AUTD3(pos=[w-15.0, 2*h, 0.0], rot=EulerAngles.XYZ([np.pi * rad, 0.0 * rad, 0.0 * rad])), 
+    AUTD3(pos=[2*w-15.0, 2*h, 0.0], rot=EulerAngles.XYZ([np.pi * rad, 0.0 * rad, 0.0 * rad])), 
+    AUTD3(pos=[2*w-15.0, h, 0.0], rot=EulerAngles.XYZ([np.pi * rad, 0.0 * rad, 0.0 * rad])), 
+    AUTD3(pos=[2*w-5.0, 10.0, 0.0], rot=[1, 0, 0, 0]), 
+    AUTD3(pos=[2*w-5.0, h+10.0, 0.0], rot=[1, 0, 0, 0]), 
+    AUTD3(pos=[3*w, 2*h, w], rot=EulerAngles.XYZ([np.pi * rad, np.pi/2 * rad, 0.0 * rad])),
+    AUTD3(pos=[3*w, h, w], rot=EulerAngles.XYZ([np.pi * rad, np.pi/2 * rad, 0.0 * rad])),
+    AUTD3(pos=[3*w, h, 2*w], rot=EulerAngles.XYZ([np.pi * rad, np.pi/2 * rad, 0.0 * rad])),
+    AUTD3(pos=[3*w, 2*h, 2*w], rot=EulerAngles.XYZ([np.pi * rad, np.pi/2 * rad, 0.0 * rad])),
 )
 
 if __name__ == "__main__":
