@@ -80,57 +80,38 @@ if __name__ == "__main__":
 
         
         autd.send(Silencer())
-        center = np.array([0.0, 0.0, 150.0])
-        point_num = 200
-        radius = 30.0
+        center = np.array([w, h, 300.0])
+        radius = 3.0
+        # --------------- parameter to be tuned directly ------------------
+        point_num = 10
+        stm_freq = 5.0 * Hz
+        am_freq = 50.0 * Hz
+        # -----------------------------------------------------------------
+        # --------------- parameter to be calculated ----------------------
+        velocity = 2 * np.pi * radius * stm_freq
+        
+        # -----------------------------------------------------------------
+
 
         g = FociSTM(
                 foci=(
                     center + radius * np.array([np.cos(theta), np.sin(theta), 0])
                     for theta in (2.0 * np.pi * i / point_num for i in range(point_num))
                 ),
-                config=5.0 * Hz,
+                config=stm_freq,
             )   
 
-        stimuli_array = np.array([])
-        sumpling_freq = 4000.0
-        num_sumple = int(sumpling_freq*5)
-        t = np.arrange(num_sumple)
-        a, b, c = generate_abc()
-        stimuli_array = a*np.sin(2*np.pi*30*t/sumpling_freq) + b*np.sin(2*np.pi*200*t/sumpling_freq) + c
 
-        m = Custom(
-                buffer=stimuli_array,
-                sumpling_config=sumpling_freq * Hz
+        m = Sine(
+            freq=am_freq,
+            option=SineOption(intensity=0xff),
         )
-        autd.send((m, g)) 
-        print("デモで触覚刺激を生成しています.実験を開始するにはenterキーを押してください.")
-        _ = input()
-        count = 0
-        stimuli_list = []
-        hardness_list = []
-        roughness_list = []
 
-        while count < 10:
-            a, b, c = generate_abc()
-            stimuli_array = a*np.sin(2*np.pi*30*t/sumpling_freq) + b*np.sin(2*np.pi*200*t/sumpling_freq) + c
-            m = Custom(
-                buffer=stimuli_array,
-                sumpling_config=sumpling_freq * Hz
-            )
-            autd.send((m, g)) 
-
-            hardness = input("硬さの指標として、1（soft）〜10（hard）の整数値を入力してください： ")
-            roughness = input("粗さの指標として1（smooth）〜10（rough）の整数値を入力してください：")
-            print("Enterキーをクリックしてstimuliを更新してください.")
-            _ = input()
-            stimuli_list.append([a, b, c])
-            hardness_list.append(hardness)
-            roughness_list.append(roughness)
-            count += 1
+        autd.send((m, g))
         
-        print('データの取得が終了しました.csvファイルに結果を保存しています.')
-        make_load_csv(stimuli_list, hardness_list, roughness_list)
-        print('結果の保存が終了しました.')
+        # print('データの取得が終了しました.csvファイルに結果を保存しています.')
+        # make_load_csv(stimuli_list, hardness_list, roughness_list)
+        # print('結果の保存が終了しました.')
+
 
 
