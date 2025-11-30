@@ -16,6 +16,7 @@ from pyautd3 import (
     SineOption,
     FociSTM
 )
+from pyautd3.gain.holo import GSPAT, EmissionConstraint, GSPATOption, P
 from pyautd3.link.ethercrab import EtherCrab, EtherCrabOption
 from pyautd3.modulation import Fourier, FourierOption, Custom
 
@@ -89,17 +90,26 @@ if __name__ == "__main__":
         # -----------------------------------------------------------------
         # --------------- parameter to be calculated ----------------------
         velocity = 2 * np.pi * radius * stm_freq
-        
+
         # -----------------------------------------------------------------
 
 
-        g = FociSTM(
-                foci=(
-                    center + radius * np.array([np.cos(theta), np.sin(theta), 0])
-                    for theta in (2.0 * np.pi * i / point_num for i in range(point_num))
-                ),
-                config=stm_freq,
-            )   
+        g = GainSTM(
+            gains=(
+                GSPAT(
+                    foci=[(center + radius * np.array([np.cos(theta), np.sin(theta), 0]), 5e3 * Pa), (center + radius * np.array([np.cos(theta+np.pi), np.sin(theta+np.pi), 0]), 5e3 * Pa)],
+                    option=GSPATOption(
+                        repeat=100,
+                        constraint=EmissionConstraint.Clamp(Intensity.MIN, Intensity.MAX),
+                    ),
+                )
+                for theta in (2.0 * np.pi * i / point_num for i in range(point_num))
+            ),
+            config=1.0 * Hz,
+            option=GainSTMOption(
+                mode=GainSTMMode.PhaseIntensityFull,
+            ),
+        )
 
 
         m = Sine(
